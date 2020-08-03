@@ -51,30 +51,6 @@ export async function composeCreatePullRequest(
 
   state.fork = owner;
 
-  if (isUser && !repository.permissions.push) {
-    // https://developer.github.com/v3/users/#get-the-authenticated-user
-    const user = await octokit.request("GET /user");
-
-    // https://developer.github.com/v3/repos/forks/#list-forks
-    const forks = await octokit.request("GET /repos/:owner/:repo/forks", {
-      owner,
-      repo,
-    });
-    const hasFork = forks.data.find(
-      (fork) => fork.owner.login === user.data.login
-    );
-
-    if (!hasFork) {
-      // https://developer.github.com/v3/repos/forks/#create-a-fork
-      await octokit.request("POST /repos/:owner/:repo/forks", {
-        owner,
-        repo,
-      });
-    }
-
-    state.fork = user.data.login;
-  }
-
   // https://developer.github.com/v3/repos/commits/#list-commits-on-a-repository
   const {
     data: [latestCommit],
